@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-module "project" {
-  source  = "terraform-google-modules/project-factory/google"
-  version = "~> 3.0"
+terraform {
+  required_version = "~> 0.12.0"
+}
 
-  name              = "ci-mariadb"
-  random_project_id = "true"
-  org_id            = var.org_id
-  folder_id         = var.folder_id
-  billing_account   = var.billing_account
+resource "google_compute_health_check" "mariadb" {
+  project             = var.project_id
+  name                = var.health_check_name
+  timeout_sec         = 30
+  check_interval_sec  = 60
+  healthy_threshold   = 1
+  unhealthy_threshold = 4
 
-  activate_apis = [
-    "cloudresourcemanager.googleapis.com",
-    "storage-api.googleapis.com",
-    "serviceusage.googleapis.com",
-    "iam.googleapis.com"
-  ]
+  tcp_health_check {
+    port = "3306"
+  }
 }
